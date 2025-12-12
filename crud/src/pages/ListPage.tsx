@@ -10,8 +10,8 @@ interface Post {
 
 // 더미 데이터
 const dummyPosts: Post[] = [
-  { id: 1, title: '첫 번째 게시글', author: '홍길동', date: '2025-07-29' },
-  { id: 2, title: '두 번째 게시글', author: '김철수', date: '2025-07-28' },
+  { id: 1, title: '첫 번째 게시글', author: '이동현', date: '2025-07-29' },
+  { id: 2, title: '두 번째 게시글', author: '한나문', date: '2025-07-28' },
 ];
 
 // 파일 이름과 함수 이름이 반드시 같을 필요는 없지만, 보통은 같게 짓는 개 권장되는 규칙이다.
