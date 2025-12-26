@@ -48,7 +48,7 @@ app.post("/api/posts", (req, res) => {
 app.put("/api/posts/:id", (req, res) => {
   const { id } = req.params;
   const { title, content } = req.body;
-  const query = "UPDATE posts SET title = ?, content = ? WHERE id =?";
+  const query = "UPDATE posts SET title = ?, content = ? WHERE id = ?";
   db.query(query, [title, content, id], (err, result) => {
     if (err) {
       return res.status(500).send("Error updating post");
