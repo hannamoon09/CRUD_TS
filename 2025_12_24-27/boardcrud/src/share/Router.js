@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 // 1. react-router-dom을 사용하기 위해서 Browser, Route, Routes를 import 한다
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import PostList from "../components/PostLists";
+import PostList from "../components/PostList";
 import PostForm from "../components/PostForm";
 import PostContent from "../components/PostContent";
 import Posts from "../components/Posts"; // api/posts
