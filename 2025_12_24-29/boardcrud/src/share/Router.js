@@ -7,6 +7,7 @@ import PostForm from "../components/PostForm";
 import PostContent from "../components/PostContent";
 import Posts from "../components/Posts"; // api/posts
 import PostEdit from "../components/PostEdit";
+import SignUp from "../components/SignUpPage";
 import axios from "axios";
 
 // 2. Router라는 함수를 만들고 아래와 같이 작성
@@ -38,6 +39,7 @@ const Router = () => {
         <Route path="edit/:id" element={<PostEdit />} /> {/* 게시글 수정 */}
         <Route path="api/posts" element={<Posts />} />
         {/* API 결과를 보여주는 페이지 */}
+        <Route path="register" element={<SignUp />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,10 +1,36 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const db = require("./db");
 const app = express();
 
 app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json()); // JSON 요청을 처리하기 위해 필요
+
+// CORS 설정
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+// 미들웨어 설정
+app.use(bodyParser.json());
+
+// 회원가입 라우트
+app.post("/register", (req, res) => {
+  const { userID, userPW, userEmail } = req.body;
+  const query =
+    "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+  db.query(query, [userID, userPW, userEmail], (err, results) => {
+    if (err) {
+      console.error("Error inserting user: ", err);
+      res.status(500).json({ success: false, message: "Database error" });
+    }
+    res.status(201).json({ success: true, userID: results.insertId });
+  });
+});
 
 // 검증 미들웨어 작성 - 게시글 작성과 수정 부분
 const validatePost = (req, res, next) => {
