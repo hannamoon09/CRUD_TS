@@ -8,6 +8,7 @@ import PostContent from "../components/PostContent";
 import Posts from "../components/Posts"; // api/posts
 import PostEdit from "../components/PostEdit";
 import SignUp from "../components/SignUpPage";
+import Login from "../components/SignInPage";
 import axios from "axios";
 
 // 2. Router라는 함수를 만들고 아래와 같이 작성
@@ -40,6 +41,7 @@ const Router = () => {
         <Route path="api/posts" element={<Posts />} />
         {/* API 결과를 보여주는 페이지 */}
         <Route path="register" element={<SignUp />} />
+        <Route path="login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

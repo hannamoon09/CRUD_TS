@@ -23,7 +23,7 @@ function SignUp() {
 
         alert(data.message || "회원가입 성공");
         if (res.status === 201) {
-          navigate("/signupsuccess");
+          navigate("/");
         } else {
           setId("");
           setPw("");

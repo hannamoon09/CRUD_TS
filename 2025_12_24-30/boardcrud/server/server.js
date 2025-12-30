@@ -1,11 +1,29 @@
+const session = require("express-session");
 const express = require("express");
-const bodyParser = require("body-parser");
+const path = require("path");
 const cors = require("cors");
-const db = require("./db");
 const app = express();
+
+const sessionOption = require("./sessionOption");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
+const db = require("./db");
 
 app.use(cors()); // CORS 미들웨어 추가
 app.use(express.json()); // JSON 요청을 처리하기 위해 필요
+app.use(bodyParser.json());
+
+var MySQLStore = require("express-mysql-session")(session);
+var sessionStore = new MySQLStore(sessionOption);
+app.use(
+  session({
+    key: "session_cookie_name",
+    secret: "~",
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // CORS 설정
 app.use(
@@ -17,6 +35,65 @@ app.use(
 
 // 미들웨어 설정
 app.use(bodyParser.json());
+
+app.get("/authcheck", (req, res) => {
+  const sendData = { isLogin: "" };
+  if (req.session.is_logined) {
+    sendData.isLogin = "True";
+  } else {
+    sendData.isLogin = "False";
+  }
+  res.send(sendData);
+});
+
+app.get("/logout", function (req, res) {
+  req.session.destroy(function (err) {
+    res.redirect("/");
+  });
+});
+
+app.post("/login", (req, res) => {
+  // 데이터 받아서 결과 전송
+  const username = req.body.userId;
+  const password = req.body.userPassword;
+  const sendData = { isLogin: "" };
+
+  if (username & password) {
+    // id와 pw가 입력되었는지 확인
+    db.query(
+      "SELECT * FROM userTable WHERE username = ?",
+      [username],
+      function (err, results, fields) {
+        if (err) throw err;
+        if (results.length > 0) {
+          // db에서의 반환값이 있다 = 일치하는 아이디가 있다.
+          bcrypt.compare(password, results[0].password, (err, result) => {
+            // 입력된 비밀번호가 해시된 저장값과 같은 값인지 비교
+            if (result === true) {
+              req.session.is_logined = true;
+              req.session.nickname = username;
+              req.session.save(function () {
+                sendData.isLogin = "True";
+                res.send(sendData);
+              });
+              db.query(
+                `INSERT INTO logTable (created, username, action, command, actiondetail) VALUES (NOW(), ?, 'login', ?, ?)`,
+                [req.session.nickname, "-", `React 로그인 테스트`],
+                function (error, result) {}
+              );
+            } else {
+              sendData.isLogin = "로그인 정보가 일치하지 않습니다.";
+              res.send(sendData);
+            }
+          });
+        } else {
+          sendData.isLogin = "아이디와 비밀번호를 입력하세요!";
+          res.send(sendData);
+        }
+      }
+    );
+  }
+});
 
 // 회원가입 라우트
 app.post("/register", (req, res) => {
@@ -31,17 +108,6 @@ app.post("/register", (req, res) => {
     res.status(201).json({ success: true, userID: results.insertId });
   });
 });
-
-// 검증 미들웨어 작성 - 게시글 작성과 수정 부분
-const validatePost = (req, res, next) => {
-  const { title, content } = req.body;
-  if (!title || !content || title.trim() === "" || content.trim() === "") {
-    return res
-      .status(400)
-      .json({ message: "제목과 내용을 모두 입력해야 합니다." });
-  }
-  next();
-};
 
 // 게시글 목록 조회 API
 app.get("/api/posts", (req, res) => {
@@ -88,6 +154,17 @@ app.patch("/api/posts/:id/view", (req, res) => {
     }
   );
 });
+
+// 검증 미들웨어 작성 - 게시글 작성과 수정 부분
+const validatePost = (req, res, next) => {
+  const { title, content } = req.body;
+  if (!title || !content || title.trim() === "" || content.trim() === "") {
+    return res
+      .status(400)
+      .json({ message: "제목과 내용을 모두 입력해야 합니다." });
+  }
+  next();
+};
 
 // 게시글 작성 API, validatePost 추가
 app.post("/api/posts", validatePost, (req, res) => {
